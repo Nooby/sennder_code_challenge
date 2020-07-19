@@ -3,9 +3,20 @@
   <title>Hello from Flask</title>
 </head>
 <body>
-  {% if message %}
-  <h1>{{ message }}!</h1>
-  {% else %}
-  <h1>Hello, World!</h1>
-  {% endif %}
+
+  <ol>
+  {% for film in films %}
+  <li>
+    {{ film.title }}
+    {% if film.people %}
+    <ul>
+      {% for person in film.people %}
+      <li>{{ person.name }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </li>
+  {% endfor %}
+  </ol>
+
 </body>

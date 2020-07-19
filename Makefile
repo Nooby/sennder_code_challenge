@@ -6,4 +6,8 @@ start:
 	docker-compose up -d
 
 lint:
-	flake8 */*.py
+	flake8 --exclude=test_*.py */*.py
+
+test:
+	coverage run --source=app -m unittest discover
+	coverage report
