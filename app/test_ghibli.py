@@ -1,8 +1,10 @@
 import unittest
+from unittest.mock import MagicMock
 
 import requests_mock
 
 from app.ghibli import Ghibli
+from app.cache import DummyCache
 
 
 test_data_films = '''
@@ -116,16 +118,46 @@ class TestGhibliFilms(unittest.TestCase):
         self.assertEqual(f[0]['title'], "Castle in the Sky")
         self.assertEqual(f[1]['title'], "Grave of the Fireflies")
 
+    @requests_mock.Mocker()
+    def test_films_cached(self, m):
+        # Arange
+        g = Ghibli()
+        m.get(self.TEST_URL, text="")
+        mockCache = DummyCache()
+        mockCache.get = MagicMock(return_value=test_data_films)
+        g._set_cache(mockCache)
+        # Act
+        f = g.films()
+        # Assert
+        self.assertEqual(len(f), 2)
+        self.assertEqual(f[0]['title'], "Castle in the Sky")
+        self.assertEqual(f[1]['title'], "Grave of the Fireflies")
+
 
 class TestGhibliPeople(unittest.TestCase):
 
     TEST_URL = "https://ghibliapi.herokuapp.com/people"
 
     @requests_mock.Mocker()
-    def test_films(self, m):
+    def test_people(self, m):
         # Arange
         g = Ghibli()
         m.get(self.TEST_URL, text=test_data_people)
+        # Act
+        f = g.people()
+        # Assert
+        self.assertEqual(len(f), 2)
+        self.assertEqual(len(f['0440483e-ca0e-4120-8c50-4c8cd9b965d6']), 2)
+        self.assertEqual(len(f['58611129-2dbc-4a81-a72f-77ddfc1b1b49']), 1)
+
+    @requests_mock.Mocker()
+    def test_people_cache(self, m):
+        # Arange
+        g = Ghibli()
+        m.get(self.TEST_URL, text="")
+        mockCache = DummyCache()
+        mockCache.get = MagicMock(return_value=test_data_people)
+        g._set_cache(mockCache)
         # Act
         f = g.people()
         # Assert
